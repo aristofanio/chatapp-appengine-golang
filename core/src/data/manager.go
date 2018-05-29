@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"uuid"
 
 	"google.golang.org/appengine/datastore"
 )
@@ -11,7 +12,8 @@ type Entity interface {
 	EName() string
 }
 
-type MessageManager interface {
+type Manager interface {
 	Store(Entity) error
-	FindByID(uid string) Entity
+	FindByID(Entity, uuid.UID) error
+	ListAllCreated() []Entity
 }

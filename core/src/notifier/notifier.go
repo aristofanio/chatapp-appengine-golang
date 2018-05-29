@@ -15,7 +15,10 @@ const (
 	ReadOrgEvt               //origin - on confirm like read (from origin)
 )
 
-type Register interface {
+type DataEvt interface {
+}
+
+type Service interface {
 	//taskqueue.NewPOSTTask("")
-	On(evtType int, org member.Entity) error
+	Fire(evtType int, org member.Entity, dt DataEvt) error
 }
