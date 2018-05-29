@@ -27,5 +27,3 @@ type Service interface {
 	Fire(int, Evt) error
 	On(int, Listener) error
 }
-
-//taskqueue.NewPOSTTask("")
