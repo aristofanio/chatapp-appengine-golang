@@ -1,7 +1,7 @@
 package notifier
 
 import (
-	"member"
+	"uuid"
 )
 
 const (
@@ -15,10 +15,17 @@ const (
 	ReadOrgEvt               //origin - on confirm like read (from origin)
 )
 
-type DataEvt interface {
+type Evt struct {
+	Target uuid.UID
+	Origin uuid.UID
+	Data   uuid.UID
 }
 
+type Listener func(Evt)
+
 type Service interface {
-	//taskqueue.NewPOSTTask("")
-	Fire(evtType int, org member.Entity, dt DataEvt) error
+	Fire(int, Evt) error
+	On(int, Listener) error
 }
+
+//taskqueue.NewPOSTTask("")

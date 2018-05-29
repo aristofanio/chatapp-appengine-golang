@@ -2,7 +2,6 @@ package message
 
 import (
 	"context"
-	"data"
 	"errors"
 	"member"
 	"notifier"
@@ -18,9 +17,10 @@ var (
 )
 
 type Manager struct {
+	msgRep  Repository
+	mbrRep  member.Repository
 	ctx     context.Context
 	notServ notifier.Service
-	dataMgr data.Manager
 	user    member.Entity
 }
 
@@ -41,22 +41,21 @@ func (m Manager) createMsg(typ int, dst member.Entity, msg, img string) (string,
 		UpdatedIn:    now,
 	}
 	//store message
-	err := m.dataMgr.Store(met)
+	err := m.msgRep.Store(met)
 	if err != nil {
 		return "", err
 	}
 	//notify
-	m.notServ.Fire(notifier.CreatedMsgEvt, dst, mid)
+	m.notServ.Fire(notifier.CreatedMsgEvt, notifier.Evt{met.Origin, met.Destiny, met.ID})
 	//send notification for dst
 	m.sendMsg(dst, mid)
 	//result msg uuid
 	return "uuid", nil
 }
 
-func (m Manager) findMember(uid uuid.UID) (member.Entity, error) {
+func (m Manager) findMember(userID uuid.UID) (*member.Entity, error) {
 	//
-	mbr := member.Entity{}
-	err := m.dataMgr.FindByID(&mbr, uid)
+	mbr, err := m.mbrRep.FindByID(userID)
 	if err != nil {
 		return mbr, err
 	}
@@ -65,7 +64,7 @@ func (m Manager) findMember(uid uuid.UID) (member.Entity, error) {
 
 func (m Manager) sendMsg(mbr member.Entity, msgID uuid.UID) {
 	//notify member
-	m.notServ.Fire(notifier.SentMsgEvt, mbr, msgID)
+	m.notServ.Fire(notifier.SentMsgEvt, notifier.Evt{m.user.ID, mbr.ID, msgID})
 }
 
 func (m Manager) CreateTextMsg(dst member.Entity, msg string) (string, error) {
@@ -85,8 +84,7 @@ func (m Manager) CreateHybMsg(dst member.Entity, msg, img string) (string, error
 
 func (m Manager) DestroyMsg(msgID uuid.UID) error {
 	//retrieve message by ref (to msgID)
-	msg := Entity{}
-	err := m.dataMgr.FindByID(&msg, msgID)
+	msg, err := m.msgRep.FindByID(msgID)
 	if err != nil {
 		return err
 	}
@@ -101,20 +99,35 @@ func (m Manager) DestroyMsg(msgID uuid.UID) error {
 	}
 	//update state for destroyed
 	msg.OriginState = DestroyedState
-	err = m.dataMgr.Store(&msg)
+	err = m.msgRep.Store(msg)
 	if err != nil {
 		return err
 	}
 	//fire event
-	m.notServ.Fire(notifier.DestroyedMgOrgEvt, org, msgID)
+	m.notServ.Fire(notifier.DestroyedMgOrgEvt, notifier.Evt{m.user.ID, msg.Destiny, msgID})
 	//result
 	return nil
 }
 
+func (m Manager) ListAllPendent(msgID uuid.UID) []Entity {
+	//result
+	result := make([]Entity, 0)
+	//list all pendent
+	msgs, err := m.msgRep.ListAllPendentMsg(m.user.ID)
+	if err == nil {
+		for _, msg := range msgs {
+			result = append(result, *msg)
+			//fire event
+			m.notServ.Fire(notifier.ReadDstEvt, notifier.Evt{msg.Destiny, m.user.ID, msgID})
+		}
+	}
+	//result
+	return result
+}
+
 func (m Manager) ConfirmDestroingMsg(msgID uuid.UID) error {
 	//retrieve message by ref (to msgID)
-	msg := Entity{}
-	err := m.dataMgr.FindByID(&msg, msgID)
+	msg, err := m.msgRep.FindByID(msgID)
 	if err != nil {
 		return err
 	}
@@ -129,31 +142,33 @@ func (m Manager) ConfirmDestroingMsg(msgID uuid.UID) error {
 	}
 	//update state for destroyed
 	msg.OriginState = DestroyedState
-	err = m.dataMgr.Store(&msg)
+	err = m.msgRep.Store(msg)
 	if err != nil {
 		return err
 	}
 	//fire event
-	m.notServ.Fire(notifier.DestroyedMgDstEvt, dst, msgID)
+	m.notServ.Fire(notifier.DestroyedMgDstEvt, notifier.Evt{msg.Destiny, m.user.ID, msgID})
 	//result
 	return nil
 }
 
 func (m Manager) SendAllMsg() { //each 1s by task auto - idempotent
 	//list all created
-	msgs := m.dataMgr.ListAllCreated()
+	msgs, err := m.msgRep.ListAllCreatedMsg()
+	if err != nil {
+		return
+	}
 	//send for each e
-	for _, e := range msgs {
-		msg := e.(*Entity)
+	for _, msg := range msgs {
 		mbr, err := m.findMember(msg.Destiny)
 		if err != nil {
 			continue
 		}
-		m.sendMsg(mbr, msg.ID)
+		m.sendMsg(*mbr, msg.ID)
 	}
 }
 
-func NewManager(ctx context.Context, not notifier.Service,
-	dt data.Manager, orig member.Entity) Manager {
-	return Manager{ctx, not, dt, orig}
+func NewManager(msgRep Repository, mbrRep member.Repository, not notifier.Service,
+	ctx context.Context, orig member.Entity) Manager {
+	return Manager{msgRep, mbrRep, ctx, not, orig}
 }

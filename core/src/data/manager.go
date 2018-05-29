@@ -15,5 +15,6 @@ type Entity interface {
 type Manager interface {
 	Store(Entity) error
 	FindByID(Entity, uuid.UID) error
-	ListAllCreated() []Entity
+	ListAllCreatedMsg() []Entity
+	ListAllPendentMsg(uuid.UID) []Entity
 }
