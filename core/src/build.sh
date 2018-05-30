@@ -5,5 +5,9 @@ PCKT_PATH=$(echo $(pwd) | sed  -e 's/\/src//g')
 GOPATH=$GOPATH:$PCKT_PATH
 
 #set GOPATH
-GOPATH=$GOPATH goapp serve
+GOPATH=$GOPATH goapp build core/err \
+    core/data/uuid \
+    core/data \
+    core/appl/auth \
+    core/appl/chat
 

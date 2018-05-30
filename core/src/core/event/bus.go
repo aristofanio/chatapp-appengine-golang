@@ -1,7 +1,7 @@
-package notifier
+package event
 
 import (
-	"uuid"
+	"core/data/uuid"
 )
 
 const (
@@ -23,7 +23,7 @@ type Evt struct {
 
 type Listener func(Evt)
 
-type Service interface {
+type Bus interface {
 	Fire(int, Evt) error
 	On(int, Listener) error
 }
