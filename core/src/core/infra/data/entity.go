@@ -2,8 +2,8 @@ package data
 
 import (
 	"context"
-	"core/data/uuid"
 	"core/err"
+	"core/infra/data/uuid"
 
 	"google.golang.org/appengine/datastore"
 )

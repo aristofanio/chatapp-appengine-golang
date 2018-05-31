@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"core/data/uuid"
+	"core/infra/data/uuid"
 	"core/utils"
 )
 
