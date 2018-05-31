@@ -10,6 +10,14 @@ type GeneralErr struct {
 	errOriginal error
 }
 
+func (e *GeneralErr) GetCode() int {
+	return e.errCode
+}
+
+func (e *GeneralErr) GetText() string {
+	return e.errText
+}
+
 func (e *GeneralErr) Original(err error) *GeneralErr {
 	e.errOriginal = err
 	return e

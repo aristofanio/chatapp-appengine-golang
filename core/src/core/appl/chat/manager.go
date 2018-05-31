@@ -8,6 +8,9 @@ type Manager interface {
 	//destroy message
 	DestroyMessage()
 
+	//get messages for user
+	GetMessages()
+
 	//mark message as read
 	MarkMessageAsRead()
 
@@ -16,7 +19,4 @@ type Manager interface {
 
 	//mark message as destroyed
 	MarkMessageAsDestroyed()
-
-	//get messages for user
-	GetMessages()
 }

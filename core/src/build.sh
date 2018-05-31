@@ -6,7 +6,6 @@ GOPATH=$GOPATH:$PCKT_PATH
 
 #set GOPATH
 GOPATH=$GOPATH goapp build core/err \
-    core/data/uuid \
     core/data \
     core/appl/auth \
     core/appl/chat
