@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"core/err"
 	"core/infra/data/uuid"
 
 	"google.golang.org/appengine/datastore"
@@ -11,13 +10,6 @@ import (
 //Constants
 const (
 	rowCountsMax = 100
-)
-
-//Errors
-var (
-	ErrEntityNotFound    = err.NewErr(1001, "Entidade não encontrada")
-	ErrEntityNotDeleted  = err.NewErr(1002, "Entidade não pode ser excluída")
-	ErrEntitiesNotListed = err.NewErr(1003, "Entidades não podem ser listadas")
 )
 
 func newEntityKey(ctx context.Context, entityKind string, uid uuid.UID) *datastore.Key {
@@ -43,7 +35,7 @@ func delete(ctx context.Context, entityKind string, uid uuid.UID) error {
 	return nil
 }
 
-func findEntity(ctx context.Context, entityKind string, uid uuid.UID, ref interface{}) error {
+func findEntityByID(ctx context.Context, entityKind string, uid uuid.UID, ref interface{}) error {
 	//key
 	key := newEntityKey(ctx, entityKind, uid)
 	//get entity
@@ -51,6 +43,30 @@ func findEntity(ctx context.Context, entityKind string, uid uuid.UID, ref interf
 	if err != nil {
 		return ErrEntityNotFound.Original(err)
 	}
+	return nil
+}
+
+func findOneEntityByFilters(ctx context.Context, entityKind string, filters map[string]interface{}, ref interface{}) error {
+	//query initial
+	q := datastore.NewQuery(entityKind)
+	//filters
+	if filters != nil {
+		for k, v := range filters {
+			q = q.Filter(k, v)
+		}
+	}
+	//limit
+	q = q.Limit(1)
+	//get entity
+	it := q.Run(ctx)
+	for {
+		_, err := it.Next(ref)
+		if err != nil {
+			return ErrEntityNotFound.Original(err)
+		}
+		break
+	}
+	//success
 	return nil
 }
 

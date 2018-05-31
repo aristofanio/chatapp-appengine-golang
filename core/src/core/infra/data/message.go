@@ -60,7 +60,7 @@ func (mgr MessageDataMgr) Get(uid uuid.UID) (*Message, error) {
 	//result
 	rslt := &Message{}
 	//get entity
-	err := findEntity(mgr.ctx, messageKind, uid, rslt)
+	err := findEntityByID(mgr.ctx, messageKind, uid, rslt)
 	if err != nil {
 		return nil, ErrEntityNotFound
 	}

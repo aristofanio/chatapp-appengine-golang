@@ -58,7 +58,7 @@ func (mgr NotificationDataMgr) Get(uid uuid.UID) (*Notification, error) {
 	//result
 	rslt := &Notification{}
 	//get entity
-	err := findEntity(mgr.ctx, notificationKind, uid, rslt)
+	err := findEntityByID(mgr.ctx, notificationKind, uid, rslt)
 	if err != nil {
 		return nil, ErrEntityNotFound
 	}

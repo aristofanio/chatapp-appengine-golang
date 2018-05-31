@@ -37,7 +37,7 @@ func (mgr MemberDataMgr) Get(uid uuid.UID) (*Member, error) {
 	//result
 	rslt := &Member{}
 	//get entity
-	err := findEntity(mgr.ctx, memberKind, uid, rslt)
+	err := findEntityByID(mgr.ctx, memberKind, uid, rslt)
 	if err != nil {
 		return nil, ErrEntityNotFound
 	}

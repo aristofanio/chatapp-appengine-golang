@@ -1,14 +1,9 @@
 package comm
 
 import (
-	"core/err"
 	"net/http"
 
 	"github.com/aristofanio/go-fcm"
-)
-
-var (
-	ErrFailOnSend = err.NewErr(1003, "Fail on send fcm notification")
 )
 
 type Pair struct {
@@ -35,12 +30,12 @@ type FCMNotifier interface {
 	PushData(ftoken string, data map[string]string)
 }
 
-type FCMNotifierInst struct {
+type fcmNotifierInst struct {
 	serverKey string
 	client    *http.Client
 }
 
-func (f FCMNotifierInst) push(ftoken string, data interface{}, payload *fcm.NotificationPayload) FCMResp {
+func (f fcmNotifierInst) push(ftoken string, data interface{}, payload *fcm.NotificationPayload) FCMResp {
 	//
 	fcmClient := fcm.NewClient(f.serverKey)
 	fcmClient.SetHTTPClient(f.client)
@@ -68,7 +63,7 @@ func (f FCMNotifierInst) push(ftoken string, data interface{}, payload *fcm.Noti
 	}
 }
 
-func (f FCMNotifierInst) PushData(ftoken string, pairs []Pair) FCMResp {
+func (f fcmNotifierInst) PushData(ftoken string, pairs []Pair) FCMResp {
 	// create data
 	data := make(map[string]string)
 	for _, p := range pairs {
@@ -78,7 +73,7 @@ func (f FCMNotifierInst) PushData(ftoken string, pairs []Pair) FCMResp {
 	return f.push(ftoken, data, nil)
 }
 
-func (f FCMNotifierInst) PushMessage(ftoken, title, msg string) FCMResp {
+func (f fcmNotifierInst) PushMessage(ftoken, title, msg string) FCMResp {
 	//create notification message
 	note := &fcm.NotificationPayload{
 		Title: title,
