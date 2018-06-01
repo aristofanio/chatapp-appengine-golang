@@ -17,15 +17,15 @@ import (
 const accessKind = "Access"
 
 type Access struct {
-	AToken    uuid.UID           `datastore:"atoken"`
-	GuestID   uuid.UID           `datastore:"guestid"`
-	NickName  string             `datastore:"nick"`
-	Photo     string             `datastore:"photo"`
-	FCMToken  string             `datastore:"fcm"`
-	Position  appengine.GeoPoint `datastore:"position"`
-	IsValid   bool               `datastore:"is_valid"`
-	CreatedIn int64              `datastore:"created_in"`
-	UpdatedIn int64              `datastore:"updated_in"`
+	AToken    uuid.UID           `datastore:"atoken" json:"atoken"`
+	FCMToken  string             `datastore:"ftoken" json:"ftoken"`
+	GuestID   uuid.UID           `datastore:"guest_id" json:"guest_id"`
+	Nick      string             `datastore:"nick" json:"nick"`
+	Photo     string             `datastore:"photo" json:"photo"`
+	Position  appengine.GeoPoint `datastore:"geopt" json:"geopt"`
+	IsValid   bool               `datastore:"is_valid" json:"is_valid"`
+	CreatedIn int64              `datastore:"created_in" json:"created_in"`
+	UpdatedIn int64              `datastore:"updated_in" json:"updated_in"`
 }
 
 func (a *Access) MakeAsInvalid() {
@@ -48,8 +48,8 @@ func (mgr AccessDataMgr) NewAccess(g Guest, u User, fcmToken string, lat, lng fl
 	ac := new(Access)
 	ac.AToken = uuid.NewUID("session")
 	ac.GuestID = g.ID
-	ac.NickName = u.NickName
-	ac.Photo = u.Picture
+	ac.Nick = u.Nick
+	ac.Photo = u.Photo
 	ac.Position = position
 	ac.FCMToken = fcmToken
 	ac.IsValid = true

@@ -63,21 +63,29 @@ func (f fcmNotifierInst) push(ftoken string, data interface{}, payload *fcm.Noti
 	}
 }
 
-func (f fcmNotifierInst) PushData(ftoken string, pairs []Pair) FCMResp {
+func (f fcmNotifierInst) PushData(ftoken, title, msg, icon string, pairs []Pair) FCMResp {
 	// create data
 	data := make(map[string]string)
 	for _, p := range pairs {
 		data[p.Key] = p.Value
 	}
+	// message for background
+	note := &fcm.NotificationPayload{
+		Title:       title,
+		Body:        msg,
+		Icon:        icon,
+		ClickAction: "FCM_PLUGIN_ACTIVITY",
+		Sound:       "default"}
 	//push
-	return f.push(ftoken, data, nil)
+	return f.push(ftoken, data, note)
 }
 
-func (f fcmNotifierInst) PushMessage(ftoken, title, msg string) FCMResp {
+func (f fcmNotifierInst) PushMessage(ftoken, title, msg, icon string) FCMResp {
 	//create notification message
 	note := &fcm.NotificationPayload{
 		Title: title,
 		Body:  msg,
+		Icon:  icon,
 		Sound: "default"}
 	//push
 	return f.push(ftoken, nil, note)

@@ -1,8 +1,9 @@
 package data
 
 import (
-	"context"
 	"core/infra/data/uuid"
+
+	"golang.org/x/net/context"
 
 	"google.golang.org/appengine/datastore"
 )
@@ -16,6 +17,10 @@ func newEntityKey(ctx context.Context, entityKind string, uid uuid.UID) *datasto
 	return datastore.NewKey(ctx, entityKind, string(uid), 0, nil)
 }
 
+func newParentKey(ctx context.Context, entityKind string, uid uuid.UID, parent *datastore.Key) *datastore.Key {
+	return datastore.NewKey(ctx, entityKind, string(uid), 0, parent)
+}
+
 //store datas from datastore
 func storeEntity(ctx context.Context, entityKind string, uid uuid.UID, e interface{}) error {
 	key := newEntityKey(ctx, entityKind, uid)
@@ -26,8 +31,28 @@ func storeEntity(ctx context.Context, entityKind string, uid uuid.UID, e interfa
 	return nil
 }
 
+func storeEntityWithParent(ctx context.Context, rootKind string, rootUID uuid.UID, root interface{},
+	childKind string, childUID uuid.UID, child interface{}) error {
+	//
+	rootKey := newEntityKey(ctx, rootKind, rootUID)
+	childkey := newParentKey(ctx, childKind, childUID, rootKey)
+	//
+	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		//
+		_, err := datastore.Put(ctx, rootKey, root)
+		if err != nil {
+			return err
+		}
+		_, err = datastore.Put(ctx, childkey, child)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, nil)
+}
+
 //remove datas from datastore
-func delete(ctx context.Context, entityKind string, uid uuid.UID) error {
+func deleteEntity(ctx context.Context, entityKind string, uid uuid.UID) error {
 	key := newEntityKey(ctx, entityKind, uid)
 	if err := datastore.Delete(ctx, key); err != nil {
 		return ErrEntityNotDeleted.Original(err)
@@ -71,7 +96,7 @@ func findOneEntityByFilters(ctx context.Context, entityKind string, filters map[
 }
 
 //list entities with filters (optional)
-func listEntities(ctx context.Context, entityKind string, filters map[string]interface{}, sort string, refs interface{}) error {
+func listEntitiesWithLimit(ctx context.Context, entityKind string, filters map[string]string, sort string, limit int, refs interface{}) error {
 	//query initial
 	q := datastore.NewQuery(entityKind)
 	//filters
@@ -85,10 +110,20 @@ func listEntities(ctx context.Context, entityKind string, filters map[string]int
 		q = q.Order(sort)
 	}
 	//limit
-	q = q.Limit(rowCountsMax)
+	if limit > 0 {
+		q = q.Limit(limit)
+	} else {
+		q = q.Limit(rowCountsMax)
+	}
+
 	if _, err := q.GetAll(ctx, refs); err != nil {
 		return ErrEntitiesNotListed.Original(err)
 	}
 	//result with success
 	return nil
+}
+
+//list entities with filters (optional)
+func listEntities(ctx context.Context, entityKind string, filters map[string]string, sort string, refs interface{}) error {
+	return listEntitiesWithLimit(ctx, entityKind, filters, sort, 0, refs)
 }

@@ -47,7 +47,7 @@ func (m managerInst) Auth(uGuestId, uEmail, uPass, uFcmToken string, lat, lng fl
 		return nil, err
 	}
 	//retrieve user by nick
-	user, err := userDataMgr.GetUserByEmail(uEmail)
+	user, err := userDataMgr.GetByEmail(uEmail)
 	if err != nil {
 		return nil, err
 	}

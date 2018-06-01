@@ -12,15 +12,19 @@ import (
 
 const guestKind = "Guest"
 
+type Device struct {
+	UUID         string `datastore:"uuid"`
+	Version      string `datastore:"version"`
+	OS           string `datastore:"os"`
+	Manufacturer string `datastore:"manufacturer"`
+	Serial       string `datastore:"serial"`
+}
+
 type Guest struct {
-	ID                 uuid.UID `datastore:"id" json:"id"`
-	DeviceUUID         string   `datastore:"device_uuid"`
-	DeviceVersion      string   `datastore:"device_version"`
-	DeviceSO           string   `datastore:"device_so"`
-	DeviceManufacturer string   `datastore:"device_manufacturer"`
-	DeviceSerial       string   `datastore:"device_serial"`
-	CreatedIn          int64    `datastore:"created_in,noindex"`
-	UpdatedIn          int64    `datastore:"updated_in,noindex"`
+	ID        uuid.UID `datastore:"id" json:"id"`
+	Device    Device   `datastore:"device" json:"device"`
+	CreatedIn int64    `datastore:"created_in,noindex"`
+	UpdatedIn int64    `datastore:"updated_in,noindex"`
 }
 
 //------------------------------------------------------------------
@@ -31,14 +35,24 @@ type GuestDataMgr struct {
 	ctx context.Context
 }
 
-func (m GuestDataMgr) NewGuest() *Guest {
-	//create instance
-	gu := new(Guest)
-	gu.ID = uuid.NewUID("guest")
-	gu.CreatedIn = utils.Now()
-	gu.UpdatedIn = utils.Now()
+func (m GuestDataMgr) NewGuest(did, version, serial, os, mnftr string) *Guest {
+	//
+	device := Device{
+		UUID:         did,
+		Version:      version,
+		OS:           os,
+		Manufacturer: mnftr,
+		Serial:       serial,
+	}
+	//
+	guest := &Guest{
+		ID:        uuid.NewUID("guest"),
+		Device:    device,
+		CreatedIn: utils.Now(),
+		UpdatedIn: utils.Now(),
+	}
 	//result
-	return gu
+	return guest
 }
 
 func (m GuestDataMgr) GetGuest(uid uuid.UID) *Guest {

@@ -1,8 +1,10 @@
 package data
 
 import (
-	"context"
 	"core/infra/data/uuid"
+	"strconv"
+
+	"golang.org/x/net/context"
 )
 
 //------------------------------------------------------------------
@@ -71,8 +73,8 @@ func (mgr MessageDataMgr) ListAllPendentsMsgs() ([]*Message, error) {
 	//result
 	rslts := make([]*Message, 0)
 	//filter
-	filter := make(map[string]interface{})
-	filter["origin_state="] = StatePendent
+	filter := make(map[string]string)
+	filter["origin_state="] = strconv.Itoa(StatePendent)
 	//list entities
 	err := listEntities(mgr.ctx, messageKind, filter, "", rslts)
 	if err != nil {
