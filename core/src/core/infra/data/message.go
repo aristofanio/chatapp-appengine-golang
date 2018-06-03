@@ -42,8 +42,8 @@ type Message struct {
 	ImageURL     MsgImage `datastore:"imgurl" json:"imgurl"`
 	OriginState  int      `datastore:"origin_state" json:"origin_state"`
 	DestinyState int      `datastore:"destiny_state" json:"destiny_state"`
-	CreatedIn    int64    `datastore:"created_in" json:"created_in"`
-	UpdatedIn    int64    `datastore:"updated_in" json:"updated_in"`
+	CreatedIn    int64    `datastore:"created_in,noindex" json:"create_in"`
+	UpdatedIn    int64    `datastore:"updated_in,noindex" json:"update_in"`
 }
 
 //------------------------------------------------------------------

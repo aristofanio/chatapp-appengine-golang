@@ -14,6 +14,7 @@ const memberKind = "Member"
 
 type Member struct {
 	ID        uuid.UID `datastore:"mid" json:"mid"`
+	Nick      string   `datastore:"nick" json:"nick"`
 	Name      string   `datastore:"name" json:"name"`
 	Email     string   `datastore:"email" json:"email"`
 	Gender    string   `datastore:"gender" json:"gender"`
@@ -21,8 +22,8 @@ type Member struct {
 	Age       int      `datastore:"age" json:"age"`
 	IsRemoved bool     `datastore:"is_removed" json:"is_removed"`
 	IsBlocked bool     `datastore:"is_blocked" json:"is_blocked"`
-	CreatedIn int64    `datastore:"created_in" json:"created_in"`
-	UpdatedIn int64    `datastore:"updated_in" json:"updated_in"`
+	CreatedIn int64    `datastore:"created_in,noindex" json:"create_in"`
+	UpdatedIn int64    `datastore:"updated_in,noindex" json:"update_in"`
 }
 
 //------------------------------------------------------------------
@@ -33,10 +34,11 @@ type MemberDataMgr struct {
 	ctx context.Context
 }
 
-func (m MemberDataMgr) NewMember(name, email string) *Member {
+func (m MemberDataMgr) NewMember(name, nick, email string) *Member {
 	//create instance
 	u := new(Member)
 	u.ID = uuid.NewUID("mbr")
+	u.Nick = nick
 	u.Name = name
 	u.Email = email
 	u.CreatedIn = utils.Now()

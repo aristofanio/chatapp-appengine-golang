@@ -29,8 +29,8 @@ type Notification struct {
 	ID        uuid.UID `datastore:"id" json:"id"`
 	Req       FCMReq   `datastore:"fcm_req" json:"fcm_req"`
 	Resp      FCMResp  `datastore:"fcm_resp" json:"fcm_resp"`
-	CreatedIn int64    `datastore:"created_in" json:"created_in"`
-	UpdatedIn int64    `datastore:"updated_in" json:"updated_in"`
+	CreatedIn int64    `datastore:"created_in,noindex" json:"create_in"`
+	UpdatedIn int64    `datastore:"updated_in,noindex" json:"update_in"`
 }
 
 //------------------------------------------------------------------

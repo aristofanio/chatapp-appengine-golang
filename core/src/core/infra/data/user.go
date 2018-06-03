@@ -29,8 +29,8 @@ type User struct {
 	PassToken  string   `datastore:"passtoken"`
 	IsVerified bool     `datastore:"is_verified"`
 	IsBlocked  bool     `datastore:"is_blocked"`
-	CreatedIn  int64    `datastore:"created_in,noindex"`
-	UpdatedIn  int64    `datastore:"updated_in,noindex"`
+	CreatedIn  int64    `datastore:"created_in,noindex" json:"create_in"`
+	UpdatedIn  int64    `datastore:"updated_in,noindex" json:"update_in"`
 }
 
 func (u *User) SetPassKey(password string) {

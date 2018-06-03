@@ -82,7 +82,7 @@ func (m managerInst) DeAuth(uGuestId, sToken string) error {
 		return err
 	}
 	//return success
-	if access.GuestID.Equals(guest.ID) {
+	if access.Guest.Equals(guest.ID) {
 		return accessDataMgr.InvalidAccess(access)
 	}
 	//return fail

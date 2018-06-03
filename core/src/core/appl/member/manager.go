@@ -44,7 +44,7 @@ func (m managerInst) Create(name, nick, email, password string) (*data.Member, e
 	mbrDataMgr := data.NewMemberDataMgr(m.ctx)
 	usrDataMgr := data.NewUserDataMgr(m.ctx)
 	//create member
-	member := mbrDataMgr.NewMember(name, email)
+	member := mbrDataMgr.NewMember(name, nick, email)
 	//create user
 	user := usrDataMgr.NewUser(member.ID, nick, email, password)
 	//store member and user

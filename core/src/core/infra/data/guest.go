@@ -23,8 +23,8 @@ type Device struct {
 type Guest struct {
 	ID        uuid.UID `datastore:"id" json:"id"`
 	Device    Device   `datastore:"device" json:"device"`
-	CreatedIn int64    `datastore:"created_in,noindex"`
-	UpdatedIn int64    `datastore:"updated_in,noindex"`
+	CreatedIn int64    `datastore:"created_in,noindex" json:"create_in"`
+	UpdatedIn int64    `datastore:"updated_in,noindex" json:"update_in"`
 }
 
 //------------------------------------------------------------------

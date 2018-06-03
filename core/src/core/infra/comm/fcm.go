@@ -18,16 +18,8 @@ type FCMResp struct {
 }
 
 type FCMNotifier interface {
-	SendInvite()
-	AcceptInvite()
-	BlockMember()
-	SendMessage()
-	ConfirmReadMessage()
-	ConfirmReceivedMessage()
-	ConfirmDestroyedMessage()
-	//
-	PushMessage(ftoken string, message string)
-	PushData(ftoken string, data map[string]string)
+	PushMessage(ftoken, title, msg, icon string) FCMResp
+	PushData(ftoken, title, msg, icon string, pairs []Pair) FCMResp
 }
 
 type fcmNotifierInst struct {
@@ -89,4 +81,8 @@ func (f fcmNotifierInst) PushMessage(ftoken, title, msg, icon string) FCMResp {
 		Sound: "default"}
 	//push
 	return f.push(ftoken, nil, note)
+}
+
+func NewFCMNotifier(srvKey string, httpCli *http.Client) FCMNotifier {
+	return fcmNotifierInst{srvKey, httpCli}
 }
